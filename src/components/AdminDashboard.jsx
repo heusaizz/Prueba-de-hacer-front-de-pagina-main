@@ -163,9 +163,9 @@ const AdminDashboard = () => {
             <option value="" disabled>
               Seleccione un rol
             </option>{" "}
-            <option value={1}>Rol Admin</option>{" "}
-            <option value={2}>Rol Alumno</option>{" "}
-            <option value={3}>Rol Profesor</option>{" "}
+            <option value={0}>Rol Admin</option>{" "}
+            <option value={1}>Rol Alumno</option>{" "}
+            <option value={2}>Rol Profesor</option>{" "}
           </select>
           <input type="hidden" name="id" value={formData.id} />
           <button type="submit">Enviar</button>
