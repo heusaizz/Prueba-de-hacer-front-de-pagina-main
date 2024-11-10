@@ -1,44 +1,45 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { fetchStudentsAndSubjects } from '../services/api'; // Importa la función de API
 import "./ProfessorDashboard.css";
 
 const ProfessorDashboard = () => {
-    const [courses, setCourses] = useState([]);
+    const [students, setStudents] = useState([]); // Estado para los estudiantes
+    const [professorId, setProfessorId] = useState(''); // Estado para el ID del profesor
+    const [error, setError] = useState(null); // Estado para manejar errores
 
-    useEffect(() => {
-        const fetchCourses = async () => {
-            const professorId = 3; // Reemplaza esto con el ID real del profesor
-            const token = localStorage.getItem('jwtToken'); // Asegúrate de que el token esté definido correctamente
-        
-            try {
-                const response = await fetch(`https://localhost:7251/api/professor/${professorId}/clients`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}` // Usa el token aquí
-                    }
-                });
-        
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-        
-                const data = await response.json();
-                setCourses(data); // Asegúrate de que setCourses esté definido
-            } catch (error) {
-                console.error('Error fetching courses:', error);
-            }
-        };
-
-        fetchCourses();
-    }, []);
+    const handleFetchStudents = async (e) => {
+        e.preventDefault(); // Evita el comportamiento por defecto del formulario
+        setError(null); // Resetea el error antes de hacer la solicitud
+        try {
+            const data = await fetchStudentsAndSubjects(professorId); // Llama a la función con el ID del profesor
+            console.log(data); // Verifica la estructura de los datos
+            setStudents(data || []); // Asegúrate de que se establezca un arreglo vacío si no hay datos
+        } catch (error) {
+            console.error('Error fetching students:', error);
+            setError('Error al obtener los alumnos inscriptos.'); // Manejo de errores
+        }
+    };
 
     return (
         <div className="professor-dashboard">
             <h1>Dashboard del Profesor</h1>
-            <h2>Mis Cursos</h2>
+            <form onSubmit={handleFetchStudents}>
+                <input 
+                    type="number" 
+                    placeholder="Ingrese ID del Profesor" 
+                    value={professorId} 
+                    onChange={(e) => setProfessorId(e.target.value)} 
+                    required 
+                />
+                <button type="submit">Mostrar Alumnos y Asignaturas</button>
+            </form>
+            {error && <p className="error-message">{error}</p>}
+            <h2>Alumnos Inscritos</h2>
             <ul>
-                {courses.map(client => (
-                    <li key={client.clientId}>{client.name}</li>
+                {students.map(student => (
+                    <li key={student.clientId}>
+                        {student.name} - Asignaturas: {student.subjects && Array.isArray(student.subjects) ? student.subjects.map(subject => subject.title).join(', ') : 'Sin asignaturas'}
+                    </li>
                 ))}
             </ul>
         </div>

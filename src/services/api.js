@@ -295,3 +295,27 @@ export const deleteSubject = async (id) => {
     throw error;
   }
 };
+
+export const fetchStudentsAndSubjects = async (professorId) => {
+  const token = localStorage.getItem("jwtToken"); // Obtén el token del localStorage
+
+  try {
+      const response = await fetch(`${API_URL}/Professor/${professorId}/clients`, {
+          method: "GET",
+          headers: {
+              Authorization: `Bearer ${token}`, // Asegúrate de incluir el token
+              "Content-Type": "application/json",
+          },
+      });
+
+      if (!response.ok) {
+          throw new Error("Error al obtener los alumnos inscriptos");
+      }
+      
+      const data = await response.json();
+      return data; // Devuelve los datos de los alumnos y sus asignaturas
+  } catch (error) {
+      console.error(error);
+      throw error;
+  }
+};
