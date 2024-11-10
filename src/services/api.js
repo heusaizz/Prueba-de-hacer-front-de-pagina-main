@@ -1,22 +1,22 @@
-const API_URL = 'https://localhost:7251/api'; // Cambia esto según la URL de tu API
+const API_URL = "https://localhost:7251/api"; // Cambia esto según la URL de tu API
 
 // Función para autenticar al usuario
-export const authenticateUser   = async (username, password) => {
+export const authenticateUser = async (username, password) => {
   try {
     const response = await fetch(`${API_URL}/Authentication/Authenticate`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ UserName: username, Password: password }),
     });
 
     if (!response.ok) {
-      throw new Error('Error de autenticación');
+      throw new Error("Error de autenticación");
     }
 
     const token = await response.text(); // Cambia a text() en lugar de json()
-    console.log('Token JWT:', token);
+    console.log("Token JWT:", token);
     return token; // Devuelve el token directamente
   } catch (error) {
     console.error(error);
@@ -26,19 +26,19 @@ export const authenticateUser   = async (username, password) => {
 
 // Función para obtener todos los usuarios
 export const fetchAllUsers = async () => {
-  const token = localStorage.getItem('jwtToken'); // Obtén el token del localStorage
+  const token = localStorage.getItem("jwtToken"); // Obtén el token del localStorage
 
   try {
     const response = await fetch(`${API_URL}/Admin/GetAllUsers`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Authorization': `Bearer ${token}`, // Asegúrate de incluir el token
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`, // Asegúrate de incluir el token
+        "Content-Type": "application/json",
       },
     });
 
     if (!response.ok) {
-      throw new Error('Error al obtener usuarios');
+      throw new Error("Error al obtener usuarios");
     }
 
     const data = await response.json();
@@ -51,19 +51,20 @@ export const fetchAllUsers = async () => {
 
 // Función para obtener todas las inscripciones
 export const fetchAllEnrollments = async () => {
-  const token = localStorage.getItem('jwtToken'); // Obtén el token del localStorage
+  const token = localStorage.getItem("jwtToken"); // Obtén el token del localStorage
 
   try {
-    const response = await fetch(`${API_URL}/Enrollment/GetAllEnrollment`, { // Cambiado a /Enrollments
-      method: 'GET',
+    const response = await fetch(`${API_URL}/Enrollment/GetAllEnrollment`, {
+      // Cambiado a /Enrollments
+      method: "GET",
       headers: {
-        'Authorization': `Bearer ${token}`, // Asegúrate de incluir el token
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`, // Asegúrate de incluir el token
+        "Content-Type": "application/json",
       },
     });
 
     if (!response.ok) {
-      throw new Error('Error al obtener inscripciones');
+      throw new Error("Error al obtener inscripciones");
     }
 
     const data = await response.json();
@@ -76,19 +77,20 @@ export const fetchAllEnrollments = async () => {
 
 // Función para obtener todas las asignaturas (cursos)
 export const fetchAllSubjects = async () => {
-  const token = localStorage.getItem('jwtToken'); // Obtén el token del localStorage
+  const token = localStorage.getItem("jwtToken"); // Obtén el token del localStorage
 
   try {
-    const response = await fetch(`${API_URL}/Subject/GetAllSubjects`, { // Cambiado a /Subjects
-      method: 'GET',
+    const response = await fetch(`${API_URL}/Subject/GetAllSubjects`, {
+      // Cambiado a /Subjects
+      method: "GET",
       headers: {
-        'Authorization': `Bearer ${token}`, // Asegúrate de incluir el token
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`, // Asegúrate de incluir el token
+        "Content-Type": "application/json",
       },
     });
 
     if (!response.ok) {
-      throw new Error('Error al obtener asignaturas');
+      throw new Error("Error al obtener asignaturas");
     }
 
     const data = await response.json();
@@ -99,27 +101,28 @@ export const fetchAllSubjects = async () => {
   }
 };
 
-export const createUser  = async (userData) => {
-  const token = localStorage.getItem('jwtToken'); // Obtén el token del localStorage
+export const createUser = async (userData) => {
+  const token = localStorage.getItem("jwtToken"); // Obtén el token del localStorage
 
   try {
-    const response = await fetch(`${API_URL}/Admin/CreateUser`, { // Eliminar espacio
-      method: 'POST',
+    const response = await fetch(`${API_URL}/Admin/CreateUser`, {
+      // Eliminar espacio
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         name: userData.name,
         username: userData.username,
         password: userData.password,
         email: userData.email,
-        role: userData.role // Asegúrate de que sea un número
+        role: userData.role, // Asegúrate de que sea un número
       }),
     });
 
     if (!response.ok) {
-      throw new Error('Error al crear el usuario');
+      throw new Error("Error al crear el usuario");
     }
 
     const data = await response.json();
@@ -131,27 +134,32 @@ export const createUser  = async (userData) => {
 };
 
 // Función para actualizar un usuario
-export const updateUser  = async (id, userData) => {
-  const token = localStorage.getItem('jwtToken'); // Obtén el token del localStorage
+export const updateUser = async (id, userData) => {
+  const token = localStorage.getItem("jwtToken"); // Obtén el token del localStorage
 
   try {
-    const response = await fetch(`${API_URL}/Admin/UpdateUser/${id}`, { // Eliminar espacio
-      method: 'PUT',
+    const response = await fetch(`${API_URL}/Admin/UpdateUser/${id}`, {
+      method: "PUT",
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         name: userData.name,
         username: userData.username,
         password: userData.password,
         email: userData.email,
-        role: userData.role // Asegúrate de que sea un número
+        role: userData.role, // Asegúrate de que sea del tipo correcto
       }),
     });
 
     if (!response.ok) {
-      throw new Error('Error al actualizar el usuario');
+      const errorData = await response.json();
+      throw new Error(
+        `Error al actualizar el usuario: ${
+          errorData.message || response.statusText
+        }`
+      );
     }
 
     const data = await response.json();
@@ -162,20 +170,20 @@ export const updateUser  = async (id, userData) => {
   }
 };
 
-export const deleteUser  = async (id) => {
-  const token = localStorage.getItem('jwtToken'); // Obtén el token del localStorage
+export const deleteUser = async (id) => {
+  const token = localStorage.getItem("jwtToken"); // Obtén el token del localStorage
 
   try {
     const response = await fetch(`${API_URL}/Admin/DeleteUser/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
     });
 
     if (!response.ok) {
-      throw new Error('Error al eliminar el usuario');
+      throw new Error("Error al eliminar el usuario");
     }
 
     return true; // Devuelve true si la eliminación fue exitosa
@@ -187,100 +195,103 @@ export const deleteUser  = async (id) => {
 
 // Función para crear una nueva inscripción
 export const createEnrollment = async (enrollmentData) => {
-  const token = localStorage.getItem('jwtToken'); // Obtén el token del localStorage
+  const token = localStorage.getItem("jwtToken"); // Obtén el token del localStorage
 
   try {
-      const response = await fetch(`${API_URL}/Enrollment/CreateEnrollment`, {
-          method: 'POST',
-          headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(enrollmentData),
-      });
+    const response = await fetch(`${API_URL}/Enrollment/CreateEnrollment`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(enrollmentData),
+    });
 
-      if (!response.ok) {
-          throw new Error('Error al crear la inscripción');
-      }
+    if (!response.ok) {
+      throw new Error("Error al crear la inscripción");
+    }
 
-      const data = await response.json();
-      return data; // Devuelve los datos de la nueva inscripción
+    const data = await response.json();
+    return data; // Devuelve los datos de la nueva inscripción
   } catch (error) {
-      console.error(error);
-      throw error;
+    console.error(error);
+    throw error;
   }
 };
 
 // Función para eliminar una inscripción
 export const deleteEnrollment = async (id) => {
-  const token = localStorage.getItem('jwtToken'); // Obtén el token del localStorage
+  const token = localStorage.getItem("jwtToken"); // Obtén el token del localStorage
 
   try {
-      const response = await fetch(`${API_URL}/Enrollment/DeleteEnrollment/${id}`, {
-          method: 'DELETE',
-          headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-          },
-      });
-
-      if (!response.ok) {
-          throw new Error('Error al eliminar la inscripción');
+    const response = await fetch(
+      `${API_URL}/Enrollment/DeleteEnrollment/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       }
+    );
 
-      return true; // Devuelve true si la eliminación fue exitosa
+    if (!response.ok) {
+      throw new Error("Error al eliminar la inscripción");
+    }
+
+    return true; // Devuelve true si la eliminación fue exitosa
   } catch (error) {
-      console.error(error);
-      throw error;
+    console.error(error);
+    throw error;
   }
 };
 
 // Función para crear una nueva asignatura
 export const createSubject = async (subjectData) => {
-  const token = localStorage.getItem('jwtToken'); // Obtén el token del localStorage
+  const token = localStorage.getItem("jwtToken"); // Obtén el token del localStorage
 
   try {
-      const response = await fetch(`${API_URL}/Subject/CreateSubject`, {
-          method: 'POST',
-          headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(subjectData),
-      });
+    const response = await fetch(`${API_URL}/Subject/CreateSubject`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(subjectData),
+    });
 
-      if (!response.ok) {
-          throw new Error('Error al crear la asignatura');
-      }
+    if (!response.ok) {
+      throw new Error("Error al crear la asignatura");
+    }
 
-      const data = await response.json();
-      return data; // Devuelve los datos de la nueva asignatura
+    const data = await response.json();
+    return data; // Devuelve los datos de la nueva asignatura
   } catch (error) {
-      console.error(error);
-      throw error;
+    console.error(error);
+    throw error;
   }
 };
 
 // Función para eliminar una asignatura
 export const deleteSubject = async (id) => {
-  const token = localStorage.getItem('jwtToken'); // Obtén el token del localStorage
+  const token = localStorage.getItem("jwtToken"); // Obtén el token del localStorage
 
   try {
-      const response = await fetch(`${API_URL}/Subject/DeleteSubject/${id}`, {
-          method: 'DELETE',
-          headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-          },
-      });
+    const response = await fetch(`${API_URL}/Subject/DeleteSubject/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
 
-      if (!response.ok) {
-          throw new Error('Error al eliminar la asignatura');
-      }
+    if (!response.ok) {
+      throw new Error("Error al eliminar la asignatura");
+    }
 
-      return true; // Devuelve true si la eliminación fue exitosa
+    return true; // Devuelve true si la eliminación fue exitosa
   } catch (error) {
-      console.error(error);
-      throw error;
+    console.error(error);
+    throw error;
   }
 };

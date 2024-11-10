@@ -32,24 +32,47 @@ const AdminDashboard = () => {
     }, []);
 
     const handleFormChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: name === 'role' ? parseInt(value) : value });
     };
+
+    const handleEdit = (user) => {
+        setFormData({ 
+            id: user.id,
+            name: user.name, 
+            email: user.email, 
+            username: user.username, 
+            password: user.password,
+            role: user.role, 
+        });
+        setShowForm(true); // Mostrar el formulario al editar
+    };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            const dataToSubmit = {
+                id: formData.id,
+                name: formData.name,
+                email: formData.email,
+                username: formData.username,
+                ...(formData.password && { password: formData.password }),
+                role: formData.role,
+            };
+    
+            console.log("Datos a enviar:", dataToSubmit); // Agrega esta línea
+    
             if (formData.id) {
-                // Si hay un id, se actualiza
-                await updateUser (formData.id, formData);
+                await updateUser (formData.id, dataToSubmit);
             } else {
-                // Si no hay id, se crea un nuevo usuario
-                await createUser (formData);
+                await createUser (dataToSubmit);
             }
-            // Recargar los usuarios después de la operación
+    
             const usersData = await fetchAllUsers();
             setUsers(usersData);
-            setShowForm(false); // Cerrar el formulario después de enviar
-            setFormData({ name: '', username: '', password: '', email: '', role: '', id: '' }); // Resetear el formulario
+            setShowForm(false);
+            setFormData({ name: '', username: '', password: '', email: '', role: '', id: '' });
         } catch (error) {
             console.error('Error al enviar el formulario:', error);
         }
@@ -136,7 +159,7 @@ const AdminDashboard = () => {
                     {users.map(user => (
                         <li key={user.id}>
                             {user.name} - {user.username} - {user.role}
-                            <button onClick={() => setFormData({ name: user.name, role: user.role, id: user.id })}>Editar</button>
+                            <button onClick={() => handleEdit(user)}>Editar</button>
                             <button onClick={() => handleDelete(user.id)}>Eliminar</button>
                         </li>
                     ))}
