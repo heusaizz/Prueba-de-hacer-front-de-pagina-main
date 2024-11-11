@@ -26,7 +26,7 @@ nav {
   flex-wrap: wrap; /* Permitir que los elementos se envuelvan */
   justify-content: center; /* Centrar elementos */
   padding: 10px 20px;
-  background-color: #333; /* Color de fondo de la navegación */
+  background-color: black; /* Color de fondo de la navegación */
 }
 
 nav ul {
@@ -122,7 +122,8 @@ nav button {
 .admin-dashboard {
   width: 90%; 
   max-width: 600px; 
-  margin: 0 auto; /
+  margin: 0 auto; 
+  background-color: white;
 }
 
 @media (max-width: 768px) {

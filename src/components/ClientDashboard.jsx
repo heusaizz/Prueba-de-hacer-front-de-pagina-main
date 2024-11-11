@@ -1,18 +1,24 @@
 import { useState, useEffect } from 'react';
 import useEnrollment from '../hooks/useEnrollment'; // Importa el custom hook
-import { fetchEnrollmentsByClientId, updateUser  } from '../services/api'; // Asegúrate de importar la función updateUser  
+import { fetchEnrollmentsByClientId, updateUser , fetchAllSubjects, createEnrollment, deleteEnrollment } from '../services/api'; // Importar las funciones necesarias
 import "./ClientDashboard.css";
 
 const ClientDashboard = () => {
     const [clientId, setClientId] = useState(''); // Estado para el ID del cliente
     const [clientData, setClientData] = useState({ id: "", name: '', username: '', email: '', password: '', role: '' }); // Estado para los datos del cliente
     const { enrollments, error, getEnrollments } = useEnrollment(); // Usa el custom hook
+    const [subjects, setSubjects] = useState([]); // Estado para las asignaturas
+    const [enrollmentData, setEnrollmentData] = useState({
+        subjectId: "",
+        clientId: "",
+    });
 
     useEffect(() => {
         const id = localStorage.getItem('clientId'); // Suponiendo que guardas el ID del cliente
         if (id) {
             setClientId(id);
             fetchClientData(id); // Llama a la función para cargar los datos del cliente
+            fetchSubjects(); // Llama a la función para cargar las asignaturas
         }
     }, []);
 
@@ -22,6 +28,15 @@ const ClientDashboard = () => {
             setClientData(data); // Ajusta esto según la estructura de los datos
         } catch (error) {
             console.error('Error fetching client data:', error);
+        }
+    };
+
+    const fetchSubjects = async () => {
+        try {
+            const subjectsData = await fetchAllSubjects(); // Obtener todas las asignaturas
+            setSubjects(subjectsData);
+        } catch (error) {
+            console.error('Error fetching subjects:', error);
         }
     };
 
@@ -60,6 +75,44 @@ const ClientDashboard = () => {
         }
     };
 
+    const handleEnrollmentChange = (e) => {
+        const { name, value } = e.target;
+        setEnrollmentData({ ...enrollmentData, [name]: value });
+    };
+
+    const handleEnrollmentSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await createEnrollment({ ...enrollmentData, clientId }); // Crear inscripción
+            await getEnrollments(clientId); // Obtener inscripciones actualizadas
+            setEnrollmentData({ subjectId: "", clientId }); // Limpiar el formulario
+            alert("Inscripción creada exitosamente.");
+        } catch (error) {
+            console.error("Error al crear la inscripción:", error);
+            alert(`Error al gestionar la inscripción: ${error.message}`);
+        }
+    };
+
+    const handleDeleteEnrollment = async (enrollmentId) => {
+        console.log("ID de inscripción recibido para eliminación:", enrollmentId); // Verifica el ID
+    
+        if (!enrollmentId) {
+            console.error("ID de inscripción no válido.");
+            alert("No se puede eliminar la inscripción. ID no válido.");
+            return; // Salir si el ID es inválido
+        }
+    
+        try {
+            console.log("Intentando eliminar la inscripción con ID:", enrollmentId);
+            await deleteEnrollment(enrollmentId); // Llama a la función para eliminar la inscripción
+            await getEnrollments(clientId); // Vuelve a obtener las inscripciones después de eliminar
+            alert("Inscripción eliminada exitosamente.");
+        } catch (error) {
+            console.error("Error al eliminar la inscripción:", error);
+            alert(`Error al eliminar la inscripción: ${error.message}`);
+        }
+    };
+
     return (
         <div className="client-dashboard">
             <h1>Dashboard del Estudiante</h1>
@@ -77,9 +130,24 @@ const ClientDashboard = () => {
             <h2>Mis Inscripciones</h2>
             <ul>
                 {enrollments.map(enrollment => (
-                    <li key={enrollment.subjectId}>{enrollment.title}, {enrollment.description}</li>
+                    <li key={enrollment.enrollmentId}> {/* Asegúrate de que esta propiedad sea correcta */}
+                        {enrollment.title}, {enrollment.description}
+                        <button onClick={() => handleDeleteEnrollment(enrollment.enrollmentId)}>Eliminar</button> {/* Aquí se pasa el ID */}
+                    </li>
                 ))}
             </ul>
+
+            <h2>Inscribirse en Asignaturas</h2>
+            <form onSubmit={handleEnrollmentSubmit}>
+                <select name="subjectId" value={enrollmentData.subjectId} onChange={handleEnrollmentChange} required>
+                    <option value="" disabled>Seleccione una Asignatura</option>
+                    {subjects.map(subject => (
+                        <option key={subject.subjectId} value={subject.subjectId}>{subject.title}</option>
+                    ))}
+                </select>
+                <input type="hidden" name="clientId" value={clientId} />
+                <button type="submit">Inscribirse</button>
+            </form>
 
             <h2>Actualizar Mis Datos</h2>
             <form onSubmit={handleSubmit}>

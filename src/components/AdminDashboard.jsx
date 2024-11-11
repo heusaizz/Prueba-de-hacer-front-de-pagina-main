@@ -349,11 +349,7 @@ const AdminDashboard = () => {
         </ul>
       </section>
 
-      <button onClick={() => setShowSubjectForm(!showSubjectForm)}>
-        {showSubjectForm
-          ? "Cerrar Formulario de Asignatura"
-          : "Agregar/Editar Asignatura"}
-      </button>
+      
 
       {showSubjectForm && (
         <form onSubmit={handleSubjectSubmit}>
@@ -387,6 +383,11 @@ const AdminDashboard = () => {
 
       <section>
         <h2>Asignaturas</h2>
+        <button onClick={() => setShowSubjectForm(!showSubjectForm)}>
+        {showSubjectForm
+          ? "Cerrar Formulario de Asignatura"
+          : "Agregar/Editar Asignatura"}
+      </button>
         <ul>
           {subjects.map((subject) => (
             <li key={subject.subjectId}>
