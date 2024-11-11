@@ -100,8 +100,8 @@ const AdminDashboard = () => {
         id: formData.id,
         name: formData.name,
         email: formData.email,
-        username: formData.username,
         ...(formData.password && { password: formData.password }),
+        username: formData.username,
         role: formData.role,
       };
 
