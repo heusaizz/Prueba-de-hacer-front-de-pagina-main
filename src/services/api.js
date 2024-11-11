@@ -212,25 +212,47 @@ export const createEnrollment = async (enrollmentData) => {
 };
 
 export const deleteEnrollment = async (id) => {
-  const token = localStorage.getItem("jwtToken"); 
+  const token = localStorage.getItem("jwtToken");
 
   try {
-    const response = await fetch(
-      `${API_URL}/Enrollment/DeleteEnrollment/${id}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await fetch(`${API_URL}/Enrollment/DeleteEnrollment/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
 
     if (!response.ok) {
       throw new Error("Error al eliminar la inscripción");
     }
 
     return true; 
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const updateEnrollment = async (id, enrollmentData) => {
+  const token = localStorage.getItem("jwtToken");
+
+  try {
+    const response = await fetch(`${API_URL}/Enrollment/UpdateEnrollment/${id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(enrollmentData), // Asegúrate de que enrollmentData contenga los campos correctos
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json(); // Obtén la respuesta de error del servidor
+      throw new Error(`Error al actualizar la inscripción: ${errorData.message || response.statusText}`);
+    }
+
+    return await response.json(); // Devuelve la inscripción actualizada
   } catch (error) {
     console.error(error);
     throw error;

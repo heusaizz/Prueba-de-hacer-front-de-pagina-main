@@ -3,12 +3,15 @@ import {
   fetchAllUsers,
   fetchAllEnrollments,
   fetchAllSubjects,
-  createUser ,
-  updateUser ,
-  deleteUser ,
+  createUser,
+  updateUser,
+  deleteUser,
   createSubject,
   updateSubject,
-  deleteSubject, // Asegúrate de importar la función deleteSubject
+  deleteSubject,
+  createEnrollment,
+  updateEnrollment,
+  deleteEnrollment, // Asegúrate de importar la función deleteEnrollment
 } from "../services/api"; // Asegúrate de que estas funciones están correctamente definidas en api.js
 import "./AdminDashboard.css";
 
@@ -20,6 +23,7 @@ const AdminDashboard = () => {
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [showSubjectForm, setShowSubjectForm] = useState(false);
+  const [showEnrollmentForm, setShowEnrollmentForm] = useState(false); // Estado para el formulario de inscripciones
   const [formData, setFormData] = useState({
     name: "",
     username: "",
@@ -34,6 +38,12 @@ const AdminDashboard = () => {
     title: "",
     description: "",
     professorId: "",
+  });
+
+  const [enrollmentData, setEnrollmentData] = useState({
+    id: "",
+    subjectId: "",
+    clientId: "",
   });
 
   useEffect(() => {
@@ -58,13 +68,18 @@ const AdminDashboard = () => {
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-    const newValue = name == "role" ? Number(value) : value;
+    const newValue = name === "role" ? Number(value) : value;
     setFormData({ ...formData, [name]: newValue });
   };
 
   const handleSubjectFormChange = (e) => {
     const { name, value } = e.target;
     setSubjectData({ ...subjectData, [name]: value });
+  };
+
+  const handleEnrollmentFormChange = (e) => {
+    const { name, value } = e.target;
+    setEnrollmentData({ ...enrollmentData, [name]: value });
   };
 
   const handleEdit = (user) => {
@@ -128,36 +143,35 @@ const AdminDashboard = () => {
 
   const handleEditSubject = (subject) => {
     setSubjectData({
-      id: subject.subjectId, // Asegúrate de que esto sea correcto
+      id: subject.subjectId,
       title: subject.title,
       description: subject.description,
-      professorId: subject.professorId, // Incluye el ID del profesor si es necesario
+      professorId: subject.professorId,
     });
     setShowSubjectForm(true); // Muestra el formulario para editar
   };
-  
+
   const handleSubjectSubmit = async (e) => {
     e.preventDefault();
     console.log("Datos de la asignatura antes de enviar:", subjectData); // Para depuración
     try {
       if (subjectData.id) {
         console.log("Actualizando asignatura con ID:", subjectData.id); // Para depuración
-        await updateSubject(subjectData.id, subjectData); // Actualiza la asignatura existente
+        await updateSubject(subjectData.id, subjectData);
       } else {
         console.log("Creando nueva asignatura."); // Para depuración
-        await createSubject(subjectData); // Crea una nueva asignatura
+        await createSubject(subjectData);
       }
-  
+
       const subjectsData = await fetchAllSubjects();
-      setSubjects(subjectsData); // Actualiza el estado con la nueva lista
-      setShowSubjectForm(false); // Cierra el formulario
-      setSubjectData({ id: "", title: "", description: "", professorId: "" }); // Resetea el formulario
+      setSubjects(subjectsData);
+      setShowSubjectForm(false);
+      setSubjectData({ id: "", title: "", description: "", professorId: "" });
     } catch (error) {
       console.error("Error al enviar el formulario de asignatura:", error);
       alert(`Error al gestionar la asignatura: ${error.message}`);
     }
   };
-
 
   const handleDeleteSubject = async (subjectId) => {
     console.log("ID de la asignatura a eliminar:", subjectId); // Verifica el ID
@@ -168,13 +182,63 @@ const AdminDashboard = () => {
     }
 
     try {
-      await deleteSubject(subjectId); // Llama a la función de eliminación
-      const subjectsData = await fetchAllSubjects(); // Vuelve a obtener la lista de asignaturas
-      setSubjects(subjectsData); // Actualiza el estado con la nueva lista
+      await deleteSubject(subjectId);
+      const subjectsData = await fetchAllSubjects();
+      setSubjects(subjectsData);
     } catch (error) {
       console.error("Error al eliminar la asignatura:", error);
-      alert(`Error al eliminar la asignatura: ${error.message}`); // Muestra el mensaje de error
+      alert(`Error al eliminar la asignatura: ${error.message}`);
     }
+  };
+
+  const handleEnrollmentSubmit = async (e) => {
+    e.preventDefault();
+    console.log("Datos de inscripción a enviar:", enrollmentData); // Agrega este log para verificar los datos
+    try {
+      if (enrollmentData.id) {
+        await updateEnrollment(enrollmentData.id, enrollmentData);
+      } else {
+        await createEnrollment(enrollmentData);
+      }
+  
+      const enrollmentsData = await fetchAllEnrollments();
+      setEnrollments(enrollmentsData);
+      setShowEnrollmentForm(false);
+      setEnrollmentData({ id: "", subjectId: "", clientId: "" });
+    } catch (error) {
+      console.error("Error al enviar el formulario de inscripción:", error);
+      alert(`Error al gestionar la inscripción: ${error.message}`);
+    }
+  };
+  
+
+  const handleDeleteEnrollment = async (enrollmentId) => {
+    console.log("ID de inscripción recibido para eliminación:", enrollmentId); // Verifica el ID
+    if (!enrollmentId) {
+      console.error("ID de inscripción no válido.");
+      alert("No se puede eliminar la inscripción. ID no válido.");
+      return; // Salir si el ID es inválido
+    }
+
+    try {
+      console.log("Intentando eliminar la inscripción con ID:", enrollmentId);
+      await deleteEnrollment(enrollmentId);
+      const enrollmentsData = await fetchAllEnrollments();
+      setEnrollments(enrollmentsData);
+      alert("Inscripción eliminada exitosamente.");
+    } catch (error) {
+      console.error("Error al eliminar la inscripción:", error);
+      alert(`Error al eliminar la inscripción: ${error.message}`);
+    }
+  };
+
+  const handleEditEnrollment = (enrollment) => {
+    setEnrollmentData({
+      id: enrollment.enrollmentId, // Asegúrate de usar el ID correcto
+      subjectId: enrollment.subjectId,
+      clientId: enrollment.clientId,
+    });
+    setShowEnrollmentForm(true); // Mostrar el formulario al editar
   };
 
   if (loading) return <div>Cargando...</div>;
@@ -230,10 +294,10 @@ const AdminDashboard = () => {
           >
             <option value="" disabled>
               Seleccione un rol
-            </option>{" "}
-            <option value={0}>Rol Admin</option>{" "}
-            <option value={1}>Rol Alumno</option>{" "}
-            <option value={2}>Rol Profesor</option>{" "}
+            </option>
+            <option value={0}>Rol Admin</option>
+            <option value={1}>Rol Alumno</option>
+            <option value={2}>Rol Profesor</option>
           </select>
           <input type="hidden" name="id" value={formData.id} />
           <button type="submit">Enviar</button>
@@ -254,28 +318,55 @@ const AdminDashboard = () => {
       </section>
 
       <section>
-        <h2>Usuarios</h2>
-        <ul>
-          {users.map((user) => (
-            <li key={user.id}>
-              {user.name} - {user.role} <h3>Legajo: </h3> {user.id}
-            </li>
-          ))}
-        </ul>
-      </section>
-      <section>
         <h2>Inscripciones</h2>
+        <button onClick={() => setShowEnrollmentForm(!showEnrollmentForm)}>
+          {showEnrollmentForm
+            ? "Cerrar Formulario de Inscripción"
+            : "Agregar Inscripción"}
+        </button>
+
+        {showEnrollmentForm && (
+          <form onSubmit={handleEnrollmentSubmit}>
+            <input
+              type="text"
+              name="subjectId"
+              value={enrollmentData.subjectId}
+              onChange={handleEnrollmentFormChange}
+              placeholder="ID de la Asignatura"
+              required
+            />
+            <input
+              type="text"
+              name="clientId"
+              value={enrollmentData.clientId}
+              onChange={handleEnrollmentFormChange}
+              placeholder="ID del Cliente"
+              required
+            />
+            <input type="hidden" name="id" value={enrollmentData.id} />
+            <button type="submit">Enviar</button>
+          </form>
+        )}
+
         <ul>
           {enrollments.map((enrollment) => (
-            <li key={enrollment.id}>
-              {enrollment.subjectTitle} <h3>Legajo: </h3> {enrollment.clientId}{" "}
+            <li key={enrollment.enrollmentId}>
+              {enrollment.subjectTitle} <h3>Legajo: </h3> {enrollment.clientId}
+              <button
+                onClick={() => handleDeleteEnrollment(enrollment.enrollmentId)}
+              >
+                Eliminar
+              </button>
+              <button onClick={() => handleEditEnrollment(enrollment)}>Editar</button>
             </li>
           ))}
         </ul>
       </section>
 
       <button onClick={() => setShowSubjectForm(!showSubjectForm)}>
-        {showSubjectForm ? "Cerrar Formulario de Asignatura" : "Agregar/Editar Asignatura"}
+        {showSubjectForm
+          ? "Cerrar Formulario de Asignatura"
+          : "Agregar/Editar Asignatura"}
       </button>
 
       {showSubjectForm && (
@@ -297,26 +388,24 @@ const AdminDashboard = () => {
           />
           <input
             type="number"
-            name="professorId" 
+            name="professorId"
             value={subjectData.professorId}
             onChange={handleSubjectFormChange}
             placeholder="ID del Profesor"
             required
           />
-          <input type="hidden" name="Subjectid" value={subjectData.id} />
+          <input type="hidden" name="SubjectId" value={subjectData.id} />
           <button type="submit">Enviar</button>
         </form>
-      )};
+      )}
+
       <section>
         <h2>Asignaturas</h2>
         <ul>
           {subjects.map((subject) => (
-            <li key={subject.subjectId}> 
+            <li key={subject.subjectId}>
               {subject.title}
-              <button onClick={() => {
-                console.log("Botón de eliminar clickeado para el ID:", subject.subjectId); 
-                handleDeleteSubject(subject.subjectId); 
-              }}>
+              <button onClick={() => handleDeleteSubject(subject.subjectId)}>
                 Eliminar
               </button>
               <button onClick={() => handleEditSubject(subject)}>Editar</button>
