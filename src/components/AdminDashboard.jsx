@@ -33,7 +33,7 @@ const AdminDashboard = () => {
     id: "",
     title: "",
     description: "",
-    professorId: ""
+    professorId: "",
   });
 
   useEffect(() => {
@@ -42,9 +42,10 @@ const AdminDashboard = () => {
         const usersData = await fetchAllUsers();
         const enrollmentsData = await fetchAllEnrollments();
         const subjectsData = await fetchAllSubjects();
+        console.log("Datos de asignaturas:", subjectsData); // Verifica la estructura de los datos
         setUsers(usersData);
         setEnrollments(enrollmentsData);
-        setSubjects(subjectsData);
+        setSubjects(subjectsData); // Aquí se establece el estado de las asignaturas
       } catch (err) {
         setError(err.message);
       } finally {
@@ -152,16 +153,21 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleDeleteSubject = async (id) => {
-    if (window.confirm("¿Estás seguro de que deseas eliminar esta asignatura?")) {
-      try {
-        await deleteSubject(id);
-        const subjectsData = await fetchAllSubjects();
-        setSubjects(subjectsData);
-      } catch (error) {
-        console.error("Error al eliminar la asignatura:", error);
-        alert(`Error: ${error.message}`);
-      }
+  const handleDeleteSubject = async (subjectId) => {
+    console.log("ID de la asignatura a eliminar:", subjectId); // Verifica el ID
+
+    if (!subjectId) {
+      console.error("El ID de la asignatura es inválido.");
+      return; // Salir si el ID es inválido
+    }
+
+    try {
+      await deleteSubject(subjectId); // Llama a la función de eliminación
+      const subjectsData = await fetchAllSubjects(); // Vuelve a obtener la lista de asignaturas
+      setSubjects(subjectsData); // Actualiza el estado con la nueva lista
+    } catch (error) {
+      console.error("Error al eliminar la asignatura:", error);
+      alert(`Error al eliminar la asignatura: ${error.message}`); // Muestra el mensaje de error
     }
   };
 
@@ -300,10 +306,10 @@ const AdminDashboard = () => {
         <h2>Asignaturas</h2>
         <ul>
           {subjects.map((subject) => (
-            <li key={subject.id}>
+            <li key={subject.id}> {/* Asegúrate de usar subject.id o subject.subjectId */}
               {subject.title} - {subject.description}
               <button onClick={() => handleEditSubject(subject)}>Editar</button>
-              <button onClick={() => handleDeleteSubject(subject.id)}>Eliminar</button>
+              <button onClick={() => handleDeleteSubject(subject.id)}>Eliminar</button> {/* Cambia aquí a subject.id */}
             </li>
           ))}
         </ul>
