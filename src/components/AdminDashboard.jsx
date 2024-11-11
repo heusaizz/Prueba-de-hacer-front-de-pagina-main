@@ -8,7 +8,7 @@ import {
   deleteUser ,
   createSubject,
   updateSubject,
-  deleteSubject,
+  deleteSubject, // Asegúrate de importar la función deleteSubject
 } from "../services/api"; // Asegúrate de que estas funciones están correctamente definidas en api.js
 import "./AdminDashboard.css";
 
@@ -18,7 +18,7 @@ const AdminDashboard = () => {
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showForm, setShowForm] = useState(false); // Falta agregar un cancel para poder sustraer el formulario si no se quiere usar
+  const [showForm, setShowForm] = useState(false);
   const [showSubjectForm, setShowSubjectForm] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -30,7 +30,7 @@ const AdminDashboard = () => {
   });
 
   const [subjectData, setSubjectData] = useState({
-    id: "",
+    SubjectId: "",
     title: "",
     description: "",
     professorId: "",
@@ -152,6 +152,7 @@ const AdminDashboard = () => {
       alert(`Error al gestionar la asignatura: ${error.message}`);
     }
   };
+
 
   const handleDeleteSubject = async (subjectId) => {
     console.log("ID de la asignatura a eliminar:", subjectId); // Verifica el ID
@@ -297,19 +298,23 @@ const AdminDashboard = () => {
             placeholder="ID del Profesor"
             required
           />
-          <input type="hidden" name="id" value={subjectData.id} />
+          <input type="hidden" name="Subjectid" value={subjectData.id} />
           <button type="submit">Enviar</button>
         </form>
       )};
-
       <section>
         <h2>Asignaturas</h2>
         <ul>
           {subjects.map((subject) => (
-            <li key={subject.id}> {/* Asegúrate de usar subject.id o subject.subjectId */}
-              {subject.title} - {subject.description}
+            <li key={subject.subjectId}> {/* Asegúrate de usar subject.subjectId */}
+              {subject.title}
+              <button onClick={() => {
+                console.log("Botón de eliminar clickeado para el ID:", subject.subjectId); // Verifica el ID al hacer clic
+                handleDeleteSubject(subject.subjectId); // Usa subject.subjectId aquí
+              }}>
+                Eliminar
+              </button>
               <button onClick={() => handleEditSubject(subject)}>Editar</button>
-              <button onClick={() => handleDeleteSubject(subject.id)}>Eliminar</button> {/* Cambia aquí a subject.id */}
             </li>
           ))}
         </ul>
