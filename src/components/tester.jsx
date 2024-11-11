@@ -10,6 +10,7 @@ import {
   updateSubject,
   deleteSubject,
   createEnrollment,
+  updateEnrollment,
   deleteEnrollment, // Asegúrate de importar la función deleteEnrollment
 } from "../services/api"; // Asegúrate de que estas funciones están correctamente definidas en api.js
 import "./AdminDashboard.css";
@@ -194,8 +195,11 @@ const AdminDashboard = () => {
     e.preventDefault();
     console.log("Datos de inscripción a enviar:", enrollmentData); // Agrega este log para verificar los datos
     try {
-      
-      await createEnrollment(enrollmentData);
+      if (enrollmentData.id) {
+        await updateEnrollment(enrollmentData.enrollmentId, enrollmentData);
+      } else {
+        await createEnrollment(enrollmentData);
+      }
   
       const enrollmentsData = await fetchAllEnrollments();
       setEnrollments(enrollmentsData);
@@ -226,6 +230,15 @@ const AdminDashboard = () => {
       console.error("Error al eliminar la inscripción:", error);
       alert(`Error al eliminar la inscripción: ${error.message}`);
     }
+  };
+
+  const handleEditEnrollment = (enrollment) => {
+    setEnrollmentData({
+      enrollmentId: enrollment.enrollmentId, // Asegúrate de usar el ID correcto
+      subjectId: enrollment.subjectId,
+      clientId: enrollment.clientId,
+    });
+    setShowEnrollmentForm(true); // Mostrar el formulario al editar
   };
 
   if (loading) return <div>Cargando...</div>;
@@ -344,6 +357,7 @@ const AdminDashboard = () => {
               >
                 Eliminar
               </button>
+              <button onClick={() => handleEditEnrollment(enrollment)}>Editar</button>
             </li>
           ))}
         </ul>
