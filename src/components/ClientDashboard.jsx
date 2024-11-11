@@ -1,44 +1,49 @@
 import { useEffect, useState } from 'react';
+import { fetchEnrollmentsByClientId } from '../services/api'; // Asegúrate de que esta función esté definida en api.js
 import "./ClientDashboard.css";
-
 
 const ClientDashboard = () => {
     const [enrollments, setEnrollments] = useState([]);
+    const [clientId, setClientId] = useState(''); // Estado para el ID del cliente
+    const [error, setError] = useState(null); // Estado para manejar errores
+
+    const handleFetchEnrollments = async (e) => {
+        e.preventDefault(); // Evita el comportamiento por defecto del formulario
+        setError(null); // Resetea el error antes de hacer la solicitud
+        try {
+            const data = await fetchEnrollmentsByClientId(clientId); // Llama a la función con el ID del cliente
+            setEnrollments(data || []); // Asegúrate de que se establezca un arreglo vacío si no hay datos
+        } catch (error) {
+            console.error('Error fetching enrollments:', error);
+            setError('Error al obtener las inscripciones.'); // Manejo de errores
+        }
+    };
 
     useEffect(() => {
-        const fetchEnrollments = async () => {
-            const clientId = 2; // Reemplaza esto con el ID real del cliente
-            const token = localStorage.getItem('jwtToken'); // Asegúrate de que el token esté definido correctamente
-            try {
-                const response = await fetch(`https://localhost:7251/api/Client/${clientId}/GetAllSubjectsEnrollments`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}` // Si necesitas autenticación
-                    }
-                });
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                //console.log(data);
-                setEnrollments(data);
-            } catch (error) {
-                console.error('Error fetching enrollments:', error);
-            }
-        };
-
-        fetchEnrollments();
-    }, []);
+        if (clientId) {
+            handleFetchEnrollments(); // Llama a la función para obtener inscripciones si hay un ID
+        }
+    }, [clientId]); // Se ejecuta cuando el clientId cambia
 
     return (
         <div className="client-dashboard">
             <h1>Dashboard del Estudiante</h1>
+            <form onSubmit={handleFetchEnrollments}>
+                <input 
+                    type="number" 
+                    placeholder="Ingrese ID del Estudiante" 
+                    value={clientId} 
+                    onChange={(e) => setClientId(e.target.value)} 
+                    required 
+ />
+                <button type="submit">Mostrar Inscripciones</button>
+            </form>
+            {error && <p className="error-message">{error}</p>}
             <h2>Mis Inscripciones</h2>
             <ul>
                 {enrollments.map(enrollment => (
                     <li key={enrollment.subjectId}>{enrollment.title}, {enrollment.description}</li>
-                ))} {/* Asegúrate de que el campo sea correcto */}
+                ))}
             </ul>
         </div>
     );

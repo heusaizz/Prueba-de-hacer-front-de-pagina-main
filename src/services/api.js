@@ -319,3 +319,27 @@ export const fetchStudentsAndSubjects = async (professorId) => {
       throw error;
   }
 };
+
+export const fetchEnrollmentsByClientId = async (clientId) => {
+  const token = localStorage.getItem("jwtToken"); // Obtén el token del localStorage
+
+  try {
+      const response = await fetch(`${API_URL}/Client/${clientId}/GetAllSubjectsEnrollments`, {
+          method: "GET",
+          headers: {
+              Authorization: `Bearer ${token}`, // Asegúrate de incluir el token
+              "Content-Type": "application/json",
+          },
+      });
+
+      if (!response.ok) {
+          throw new Error("Error al obtener inscripciones");
+      }
+
+      const data = await response.json();
+      return data; // Devuelve los datos de las inscripciones
+  } catch (error) {
+      console.error(error);
+      throw error;
+  }
+};
