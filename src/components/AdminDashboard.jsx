@@ -3,9 +3,12 @@ import {
   fetchAllUsers,
   fetchAllEnrollments,
   fetchAllSubjects,
-  createUser,
-  updateUser,
-  deleteUser,
+  createUser ,
+  updateUser ,
+  deleteUser ,
+  createSubject,
+  updateSubject,
+  deleteSubject,
 } from "../services/api"; // Asegúrate de que estas funciones están correctamente definidas en api.js
 import "./AdminDashboard.css";
 
@@ -16,6 +19,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false); // Falta agregar un cancel para poder sustraer el formulario si no se quiere usar
+  const [showSubjectForm, setShowSubjectForm] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     username: "",
@@ -23,7 +27,14 @@ const AdminDashboard = () => {
     email: "",
     role: "",
     id: "",
-  }); // Estado para los datos del formulario
+  });
+
+  const [subjectData, setSubjectData] = useState({
+    id: "",
+    title: "",
+    description: "",
+    professorId: ""
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,6 +59,11 @@ const AdminDashboard = () => {
     const { name, value } = e.target;
     const newValue = name == "role" ? Number(value) : value;
     setFormData({ ...formData, [name]: newValue });
+  };
+
+  const handleSubjectFormChange = (e) => {
+    const { name, value } = e.target;
+    setSubjectData({ ...subjectData, [name]: value });
   };
 
   const handleEdit = (user) => {
@@ -106,6 +122,46 @@ const AdminDashboard = () => {
       setUsers(usersData);
     } catch (error) {
       console.error("Error al eliminar el usuario: ", error);
+    }
+  };
+
+  const handleEditSubject = (subject) => {
+    setSubjectData({
+      id: subject.id,
+      title: subject.title,
+      description: subject.description,
+    });
+    setShowSubjectForm(true);
+  };
+
+  const handleSubjectSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (subjectData.id) {
+        await updateSubject(subjectData.id, subjectData);
+      } else {
+        await createSubject(subjectData);
+      }
+      const subjectsData = await fetchAllSubjects();
+      setSubjects(subjectsData);
+      setShowSubjectForm(false);
+      setSubjectData({ id: "", title: "", description: "" });
+    } catch (error) {
+      console.error("Error al enviar el formulario de asignatura:", error);
+      alert(`Error al gestionar la asignatura: ${error.message}`);
+    }
+  };
+
+  const handleDeleteSubject = async (id) => {
+    if (window.confirm("¿Estás seguro de que deseas eliminar esta asignatura?")) {
+      try {
+        await deleteSubject(id);
+        const subjectsData = await fetchAllSubjects();
+        setSubjects(subjectsData);
+      } catch (error) {
+        console.error("Error al eliminar la asignatura:", error);
+        alert(`Error: ${error.message}`);
+      }
     }
   };
 
@@ -205,11 +261,50 @@ const AdminDashboard = () => {
           ))}
         </ul>
       </section>
+
+      <button onClick={() => setShowSubjectForm(!showSubjectForm)}>
+        {showSubjectForm ? "Cerrar Formulario de Asignatura" : "Agregar/Editar Asignatura"}
+      </button>
+
+      {showSubjectForm && (
+        <form onSubmit={handleSubjectSubmit}>
+          <input
+            type="text"
+            name="title"
+            value={subjectData.title}
+            onChange={handleSubjectFormChange}
+            placeholder="Título de la Asignatura"
+            required
+          />
+          <textarea
+            name="description"
+            value={subjectData.description}
+            onChange={handleSubjectFormChange}
+            placeholder="Descripción de la Asignatura"
+            required
+          />
+          <input
+            type="number"
+            name="professorId" 
+            value={subjectData.professorId}
+            onChange={handleSubjectFormChange}
+            placeholder="ID del Profesor"
+            required
+          />
+          <input type="hidden" name="id" value={subjectData.id} />
+          <button type="submit">Enviar</button>
+        </form>
+      )};
+
       <section>
         <h2>Asignaturas</h2>
         <ul>
           {subjects.map((subject) => (
-            <li key={subject.id}>{subject.title}</li>
+            <li key={subject.id}>
+              {subject.title} - {subject.description}
+              <button onClick={() => handleEditSubject(subject)}>Editar</button>
+              <button onClick={() => handleDeleteSubject(subject.id)}>Eliminar</button>
+            </li>
           ))}
         </ul>
       </section>
