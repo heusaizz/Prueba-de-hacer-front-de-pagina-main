@@ -231,7 +231,7 @@ const ClientDashboard = () => {
           </option>
           <option value={1}>Rol Alumno</option>
         </select>
-        <button type="submit">Actualizar Datos</button>
+        <button type="submit">Editar</button>
       </form>
     </div>
   );
