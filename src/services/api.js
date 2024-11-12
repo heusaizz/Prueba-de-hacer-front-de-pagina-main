@@ -47,6 +47,30 @@ export const fetchAllUsers = async () => {
   }
 };
 
+export const fetchUserById = async (id) => {
+  const token = localStorage.getItem("jwtToken"); 
+
+  try {
+    const response = await fetch(`${API_URL}/Admin/GetUserbyId/${id}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`, 
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al obtener usuarios");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 export const fetchAllEnrollments = async () => {
   const token = localStorage.getItem("jwtToken"); 
 
