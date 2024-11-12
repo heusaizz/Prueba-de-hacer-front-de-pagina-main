@@ -72,13 +72,13 @@ export const fetchAllEnrollments = async () => {
 };
 
 export const fetchAllSubjects = async () => {
-  const token = localStorage.getItem("jwtToken"); 
+  const token = localStorage.getItem("jwtToken");
 
   try {
     const response = await fetch(`${API_URL}/Subject/GetAllSubjects`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`, 
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
