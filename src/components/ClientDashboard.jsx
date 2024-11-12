@@ -226,7 +226,7 @@ const ClientDashboard = () => {
 
             <section>
                 <button onClick={() => setShowForm(!showForm)}>
-                    {showForm ? "Cerrar Formulario" : "Agregar/Editar Usuario"}
+                    {showForm ? "Cerrar Formulario" : "Editar Usuario"}
                 </button>
                 <ul>
                     
